@@ -1,6 +1,5 @@
 import { bindHypcMethod, bindHypcMethodWithFallbackFunc } from './helpers';
 import translate from '../translate';
-import * as semver from 'semver';
 import { isNil } from '../common/helpers';
 
 export function setupCore (hypJson) {
@@ -24,9 +23,7 @@ export function setupCore (hypJson) {
 
   return {
     ...core,
-    ...helpers,
-
-    isVersion6OrNewer: semver.gt(helpers.versionToSemver(), '0.5.99')
+    ...helpers
   };
 }
 

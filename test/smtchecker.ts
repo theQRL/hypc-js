@@ -1,5 +1,4 @@
 import tape from 'tape';
-import * as semver from 'semver';
 import hypc from '../';
 import smtchecker from '../smtchecker';
 import smtsolver from '../smtsolver';
@@ -62,12 +61,6 @@ tape('SMTCheckerWithSolver', function (t) {
     const z3 = smtsolver.availableSolvers.filter(solver => solver.command === 'z3');
     if (z3.length === 0) {
       st.skip('Test requires z3.');
-      st.end();
-      return;
-    }
-
-    if (semver.lt(hypc.semver(), '0.8.7')) {
-      st.skip('This test requires Hyperion 0.8.7 to enable all SMTChecker options.');
       st.end();
       return;
     }

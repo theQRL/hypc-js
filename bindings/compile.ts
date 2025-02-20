@@ -92,25 +92,14 @@ function bindCompileStandard (hypJson, coreBindings) {
     null
   );
 
-  if (coreBindings.isVersion6OrNewer) {
-    // input (jsontext), callback (ptr), callback_context (ptr) -> output (jsontext)
-    boundFunctionHyperion = bindHypcMethod(
-      hypJson,
-      'hyperion_compile',
-      'string',
-      ['string', 'number', 'number'],
-      null
-    );
-  } else {
-    // input (jsontext), callback (ptr) -> output (jsontext)
-    boundFunctionHyperion = bindHypcMethod(
-      hypJson,
-      'hyperion_compile',
-      'string',
-      ['string', 'number'],
-      null
-    );
-  }
+  // input (jsontext), callback (ptr), callback_context (ptr) -> output (jsontext)
+  boundFunctionHyperion = bindHypcMethod(
+    hypJson,
+    'hyperion_compile',
+    'string',
+    ['string', 'number', 'number'],
+    null
+  );
 
   if (!isNil(compileInternal)) {
     boundFunctionStandard = function (input, readCallback) {
@@ -130,20 +119,6 @@ function bindCompileStandard (hypJson, coreBindings) {
 /**********************
  * CALL BACKS
  **********************/
-
-function wrapCallback (coreBindings, callback) {
-  assert(typeof callback === 'function', 'Invalid callback specified.');
-
-  return function (data, contents, error) {
-    const result = callback(coreBindings.copyFromCString(data));
-    if (typeof result.contents === 'string') {
-      coreBindings.copyToCString(result.contents, contents);
-    }
-    if (typeof result.error === 'string') {
-      coreBindings.copyToCString(result.error, error);
-    }
-  };
-}
 
 function wrapCallbackWithKind (coreBindings, callback) {
   assert(typeof callback === 'function', 'Invalid callback specified.');
@@ -179,41 +154,34 @@ function runWithCallbacks (hypJson, coreBindings, callbacks, compile, args) {
   }
 
   let singleCallback;
-  if (coreBindings.isVersion6OrNewer) {
-    // After 0.6.x multiple kind of callbacks are supported.
-    let smtSolverCallback = callbacks.smtSolver;
-    if (smtSolverCallback === undefined) {
-      smtSolverCallback = function (data) {
-        return {
-          error: 'SMT solver callback not supported'
-        };
+  // After 0.6.x multiple kind of callbacks are supported.
+  let smtSolverCallback = callbacks.smtSolver;
+  if (smtSolverCallback === undefined) {
+    smtSolverCallback = function (data) {
+      return {
+        error: 'SMT solver callback not supported'
       };
-    }
-
-    singleCallback = function (kind, data) {
-      if (kind === 'source') {
-        return readCallback(data);
-      } else if (kind === 'smt-query') {
-        return smtSolverCallback(data);
-      } else {
-        assert(false, 'Invalid callback kind specified.');
-      }
     };
-
-    singleCallback = wrapCallbackWithKind(coreBindings, singleCallback);
-  } else {
-    // Old Solidity version only supported imports.
-    singleCallback = wrapCallback(coreBindings, readCallback);
   }
+
+  singleCallback = function (kind, data) {
+    if (kind === 'source') {
+      return readCallback(data);
+    } else if (kind === 'smt-query') {
+      return smtSolverCallback(data);
+    } else {
+      assert(false, 'Invalid callback kind specified.');
+    }
+  };
+
+  singleCallback = wrapCallbackWithKind(coreBindings, singleCallback);
 
   const cb = coreBindings.addFunction(singleCallback, 'viiiii');
   let output;
   try {
     args.push(cb);
-    if (coreBindings.isVersion6OrNewer) {
-      // Callback context.
-      args.push(null);
-    }
+    // Callback context.
+    args.push(null);
 
     output = compile(...args);
   } finally {
