@@ -238,7 +238,7 @@ tape('CLI', function (t) {
         'contractB.hyp': {
           content:
             '// SPDX-License-Identifier: GPL-3.0\n' +
-            'pragma hyperion >=0.0;\n' +
+            'pragma hyperion >=0.0.1;\n' +
             'import "./contractA.hyp";\n'
         }
       }

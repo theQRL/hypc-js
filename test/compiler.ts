@@ -621,7 +621,7 @@ function runTests (hypc, versionText) {
         st.end();
       });
 
-      t.test('compiling standard JSON (with warning >=0.0.0)', function (st) {
+      t.test('compiling standard JSON (with warning >=0.0.1)', function (st) {
         const input = {
           language: 'Hyperion',
           settings: {
