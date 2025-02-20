@@ -6,7 +6,7 @@ import hypc from '../';
 import smtchecker from '../smtchecker';
 import smtsolver from '../smtsolver';
 
-const preamble = 'pragma hyperion >=0.0;\n// SPDX-License-Identifier: GPL-3.0\n';
+const preamble = 'pragma hyperion >=0.0.1;\n// SPDX-License-Identifier: GPL-3.0\n';
 
 function collectErrors (hypOutput) {
   if (hypOutput === undefined) {
