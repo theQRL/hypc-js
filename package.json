@@ -1,0 +1,23 @@
+{
+  "name": "hypc",
+  "version": "0.0.1",
+  "description": "Hyperion compiler",
+  "main": "index.js",
+  "scripts": {
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/theQRL/hypc-js.git"
+  },
+  "keywords": [
+    "zond",
+    "hyperion",
+    "compiler"
+  ],
+  "author": "",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/theQRL/hypc-js/issues"
+  },
+  "homepage": "https://github.com/theQRL/hypc-js#readme"
+}
