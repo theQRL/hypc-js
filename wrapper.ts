@@ -42,7 +42,7 @@ function wrapper (hypjson) {
 
 function loadRemoteVersion (versionString, callback) {
   const memoryStream = new MemoryStream(null, { readable: false });
-  const url = `https://binaries.soliditylang.org/bin/hypjson-${versionString}.js`;
+  const url = `https://binaries.theqrl.org/bin/hypjson-${versionString}.js`;
 
   https.get(url, response => {
     if (response.statusCode !== 200) {

@@ -47,7 +47,7 @@ function replacePlaceholder (bytecode, label, address) {
  * for a full explanation of the linking process.
  *
  * Example of a legacy placeholder: `__lib.hyp:L_____________________________`
- * Example of a new-style placeholder: `__$cb901161e812ceb78cfe30ca65050c4337$__`
+ * Example of a new-style placeholder: `__$7484607a72fb0587588e5a1e608f0b16de$__`
  *
  * @param bytecode Hex-encoded bytecode string. All 40-byte substrings starting and ending with
  *     `__` will be interpreted as placeholders.
@@ -71,7 +71,7 @@ function linkBytecode (bytecode: string, libraries: LibraryAddresses): string {
     }
 
     // API compatible with the standard JSON i/o
-    // {"lib.hyp": {"L": "0x..."}}
+    // {"lib.hyp": {"L": "Z..."}}
     if (isObject(libraryObjectOrAddress)) {
       for (const [unqualifiedLibraryName, address] of Object.entries(libraryObjectOrAddress)) {
         librariesComplete[unqualifiedLibraryName] = address;

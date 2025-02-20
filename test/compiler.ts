@@ -24,12 +24,7 @@ function runTests (hypc, versionText) {
 
   function getBytecode (output, fileName, contractName) {
     try {
-      let outputContract;
-      if (semver.lt(hypc.semver(), '0.4.9')) {
-        outputContract = output.contracts[contractName];
-      } else {
-        outputContract = output.contracts[fileName + ':' + contractName];
-      }
+      const outputContract = output.contracts[fileName + ':' + contractName];
       return outputContract.bytecode;
     } catch (e) {
       return '';
@@ -38,15 +33,7 @@ function runTests (hypc, versionText) {
 
   function getBytecodeStandard (output, fileName, contractName) {
     try {
-      let outputFile;
-      if (semver.lt(hypc.semver(), '0.4.9')) {
-        outputFile = output.contracts[''];
-      } else {
-        if (semver.gt(hypc.semver(), '0.4.10') && semver.lt(hypc.semver(), '0.4.20')) {
-          [fileName, contractName] = resplitFileNameOnFirstColon(fileName, contractName);
-        }
-        outputFile = output.contracts[fileName];
-      }
+      const outputFile = output.contracts[fileName];
       return outputFile[contractName].zvm.bytecode.object;
     } catch (e) {
       return '';
@@ -55,15 +42,11 @@ function runTests (hypc, versionText) {
 
   function getGasEstimate (output, fileName, contractName) {
     try {
-      let outputFile;
-      if (semver.lt(hypc.semver(), '0.4.9')) {
-        outputFile = output.contracts[''];
-      } else {
-        if (semver.gt(hypc.semver(), '0.4.10') && semver.gt(hypc.semver(), '0.4.20')) {
-          [fileName, contractName] = resplitFileNameOnFirstColon(fileName, contractName);
-        }
-        outputFile = output.contracts[fileName];
+      // TODO (cyyber): Condition looks odd.
+      if (semver.gt(hypc.semver(), '0.4.10') && semver.gt(hypc.semver(), '0.4.20')) {
+        [fileName, contractName] = resplitFileNameOnFirstColon(fileName, contractName);
       }
+      const outputFile = output.contracts[fileName];
       return outputFile[contractName].zvm.gasEstimates;
     } catch (e) {
       return '';
@@ -135,13 +118,6 @@ function runTests (hypc, versionText) {
       });
 
       t.test('invalid source code fails properly (using lowlevel API)', function (st) {
-        // TODO: try finding an example which doesn't crash it?
-        if (semver.eq(hypc.semver(), '0.4.11')) {
-          st.skip('Skipping on broken compiler version');
-          st.end();
-          return;
-        }
-
         if (typeof hypc.lowlevel.compileSingle !== 'function') {
           st.skip('Low-level compileSingle interface not implemented by this compiler version.');
           st.end();
@@ -149,11 +125,6 @@ function runTests (hypc, versionText) {
         }
 
         const output = JSON.parse(hypc.lowlevel.compileSingle('contract x { this is an invalid contract }'));
-        if (semver.lt(hypc.semver(), '0.1.4')) {
-          st.ok(output.error.indexOf('Parser error: Expected identifier') !== -1);
-          st.end();
-          return;
-        }
         st.plan(3);
         st.ok('errors' in output);
         // Check if the ParserError exists, but allow others too
@@ -368,13 +339,6 @@ function runTests (hypc, versionText) {
       });
 
       t.test('invalid source code fails properly with standard JSON (using lowlevel API)', function (st) {
-        // TODO: try finding an example which doesn't crash it?
-        if (semver.eq(hypc.semver(), '0.4.11')) {
-          st.skip('Skipping on broken compiler version');
-          st.end();
-          return;
-        }
-
         if (typeof hypc.lowlevel.compileStandard !== 'function') {
           st.skip('Low-level compileStandard interface not implemented by this compiler version.');
           st.end();
@@ -449,6 +413,7 @@ function runTests (hypc, versionText) {
         }
 
         const output = JSON.parse(hypc.lowlevel.compileStandard(JSON.stringify(input), { import: findImports }));
+        console.log(JSON.stringify(input));
         st.ok(bytecodeExists(output, 'a.hyp', 'A'));
         st.ok(bytecodeExists(output, 'b.hyp', 'B'));
         st.end();
@@ -542,13 +507,7 @@ function runTests (hypc, versionText) {
           return;
         }
 
-        const isVersion6 = semver.gt(hypc.semver(), '0.5.99');
-        let source;
-        if (isVersion6) {
-          source = 'abstract contract C { function f() public virtual; }';
-        } else {
-          source = 'contract C { function f() public; }';
-        }
+        const source = 'abstract contract C { function f() public virtual; }';
 
         const input = {
           language: 'Hyperion',
@@ -619,13 +578,6 @@ function runTests (hypc, versionText) {
       });
 
       t.test('compiling standard JSON (using libraries)', function (st) {
-        // 0.4.0 has a bug with libraries
-        if (semver.eq(hypc.semver(), '0.4.0')) {
-          st.skip('Skipping on broken compiler version');
-          st.end();
-          return;
-        }
-
         // <0.1.6 doesn't have this
         if (!hypc.features.multipleInputs) {
           st.skip('Not supported by hypc');
@@ -638,7 +590,7 @@ function runTests (hypc, versionText) {
           settings: {
             libraries: {
               'lib.hyp': {
-                L: '0x4200000000000000000000000000000000000001'
+                L: 'Z4200000000000000000000000000000000000001'
               }
             },
             outputSelection: {
@@ -669,14 +621,7 @@ function runTests (hypc, versionText) {
         st.end();
       });
 
-      t.test('compiling standard JSON (with warning >=0.4.0)', function (st) {
-        // In 0.4.0 "pragma hyperion" was added. Not including it is a warning.
-        if (semver.lt(hypc.semver(), '0.4.0')) {
-          st.skip('Not supported by hypc');
-          st.end();
-          return;
-        }
-
+      t.test('compiling standard JSON (with warning >=0.0.0)', function (st) {
         const input = {
           language: 'Hyperion',
           settings: {
@@ -699,13 +644,6 @@ function runTests (hypc, versionText) {
       });
 
       t.test('compiling standard JSON (using libraries) (using lowlevel API)', function (st) {
-        // 0.4.0 has a bug with libraries
-        if (semver.eq(hypc.semver(), '0.4.0')) {
-          st.skip('Skipping on broken compiler version');
-          st.end();
-          return;
-        }
-
         if (typeof hypc.lowlevel.compileStandard !== 'function') {
           st.skip('Low-level compileStandard interface not implemented by this compiler version.');
           st.end();
@@ -717,7 +655,7 @@ function runTests (hypc, versionText) {
           settings: {
             libraries: {
               'lib.hyp': {
-                L: '0x4200000000000000000000000000000000000001'
+                L: 'Z4200000000000000000000000000000000000001'
               }
             },
             outputSelection: {
@@ -870,28 +808,15 @@ function runTests (hypc, versionText) {
 runTests(hypc, 'latest');
 
 if (!noRemoteVersions) {
-  // New compiler interface features 0.1.6, 0.2.1, 0.4.11, 0.5.0, etc.
-  // 0.4.0 added pragmas (used in tests above)
+  // New compiler interface features 0.0.1
   const versions = [
-    'v0.1.1+commit.6ff4cd6',
-    'v0.1.6+commit.d41f8b7',
-    'v0.2.0+commit.4dc2445',
-    'v0.2.1+commit.91a6b35',
-    'v0.3.6+commit.3fc68da',
-    'v0.4.0+commit.acd334c9',
-    'v0.4.9+commit.364da425',
-    'v0.4.10+commit.f0d539ae',
-    'v0.4.11+commit.68ef5810',
-    'v0.4.12+commit.194ff033',
-    'v0.4.19+commit.c4cbbb05',
-    'v0.4.20+commit.3155dd80',
-    'v0.4.26+commit.4563c3fc'
+    'v0.0.1+commit.360d2d0'
   ];
   for (let version in versions) {
     version = versions[version];
     // NOTE: The temporary directory will be removed on process exit.
     const tempDir = tmp.dirSync({ unsafeCleanup: true, prefix: 'hypc-js-compiler-test-' }).name;
-    execSync(`curl -L -o ${tempDir}/${version}.js https://binaries.soliditylang.org/bin/hypjson-${version}.js`);
+    execSync(`curl -L -o ${tempDir}/${version}.js https://binaries.theqrl.org/bin/hypjson-${version}.js`);
     const newHypc = wrapper(require(`${tempDir}/${version}.js`));
     runTests(newHypc, version);
   }

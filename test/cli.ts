@@ -186,7 +186,7 @@ tape('CLI', function (t) {
       },
       sources: {
         'Contract.hyp': {
-          content: 'pragma hyperion >=0.5.0; contract Contract { function f() pure public {} }'
+          content: 'pragma hyperion >=0.0.1; contract Contract { function f() pure public {} }'
         }
       }
     };

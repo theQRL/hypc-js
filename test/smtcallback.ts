@@ -2,7 +2,6 @@ import assert from 'assert';
 import tape from 'tape';
 import * as fs from 'fs';
 import * as path from 'path';
-import * as semver from 'semver';
 import hypc from '../';
 import smtchecker from '../smtchecker';
 import smtsolver from '../smtsolver';
@@ -56,12 +55,6 @@ function expectErrors (expectations, errors, ignoreCex) {
 
 tape('SMTCheckerCallback', function (t) {
   t.test('Interface via callback', function (st) {
-    if (!semver.gt(hypc.semver(), '0.5.99')) {
-      st.skip('SMT callback not implemented by this compiler version.');
-      st.end();
-      return;
-    }
-
     const satCallback = function (query) {
       return { contents: 'sat\n' };
     };
@@ -72,45 +65,20 @@ tape('SMTCheckerCallback', function (t) {
       return { error: 'Fake SMT solver error.' };
     };
 
-    let pragmaSMT = '';
-    let settings = {};
-    // `pragma experimental SMTChecker;` was deprecated in 0.8.4
-    if (!semver.gt(hypc.semver(), '0.8.3')) {
-      pragmaSMT = 'pragma experimental SMTChecker;\n';
-    } else {
-      settings = { modelChecker: { engine: 'all' } };
-    }
+    const settings = { modelChecker: { engine: 'all' } };
 
-    const input = { a: { content: preamble + pragmaSMT + 'contract C { function f(uint x) public pure { assert(x > 0); } }' } };
+    const input = { a: { content: preamble + 'contract C { function f(uint x) public pure { assert(x > 0); } }' } };
     const inputJSON = JSON.stringify({
       language: 'Hyperion',
       sources: input,
       settings: settings
     });
 
-    let tests;
-    if (!semver.gt(hypc.semver(), '0.6.8')) {
-      // Up to version 0.6.8 there were no embedded solvers.
-      tests = [
-        { cb: satCallback, expectations: ['Assertion violation happens here'] },
-        { cb: unsatCallback, expectations: [] },
-        { cb: errorCallback, expectations: ['BMC analysis was not possible'] }
-      ];
-    } else if (!semver.gt(hypc.semver(), '0.6.12')) {
-      // Hyperion 0.6.9 comes with z3.
-      tests = [
-        { cb: satCallback, expectations: ['Assertion violation happens here'] },
-        { cb: unsatCallback, expectations: ['At least two SMT solvers provided conflicting answers. Results might not be sound.'] },
-        { cb: errorCallback, expectations: ['Assertion violation happens here'] }
-      ];
-    } else {
-      // Hyperion 0.7.0 reports assertion violations via CHC.
-      tests = [
-        { cb: satCallback, expectations: ['Assertion violation happens here'] },
-        { cb: unsatCallback, expectations: ['Assertion violation happens here'] },
-        { cb: errorCallback, expectations: ['Assertion violation happens here'] }
-      ];
-    }
+    const tests = [
+      { cb: satCallback, expectations: ['Assertion violation happens here'] },
+      { cb: unsatCallback, expectations: ['Assertion violation happens here'] },
+      { cb: errorCallback, expectations: ['Assertion violation happens here'] }
+    ];
 
     for (const i in tests) {
       const test = tests[i];
@@ -209,18 +177,15 @@ tape('SMTCheckerCallback', function (t) {
       }
 
       let settings = {};
-      // `pragma experimental SMTChecker;` was deprecated in 0.8.4
-      if (semver.gt(hypc.semver(), '0.8.3')) {
-        const engine = test.engine !== undefined ? test.engine : 'all';
-        settings = {
-          modelChecker: {
-            engine: engine,
-            solvers: [
-              'smtlib2'
-            ]
-          }
-        };
-      }
+      const engine = test.engine !== undefined ? test.engine : 'all';
+      settings = {
+        modelChecker: {
+          engine: engine,
+          solvers: [
+            'smtlib2'
+          ]
+        }
+      };
       const output = JSON.parse(hypc.compile(
         JSON.stringify({
           language: 'Hyperion',
