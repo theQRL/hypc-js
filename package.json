@@ -4,6 +4,7 @@
   "description": "Hyperion compiler",
   "main": "index.js",
   "scripts": {
+    "build": "tsc",
   },
   "repository": {
     "type": "git",
