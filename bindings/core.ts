@@ -116,10 +116,6 @@ function bindReset (hypJson) {
  *
  * Allocates memory using hypc's allocator.
  *
- * Before 0.6.0:
- *   Assuming copyToCString is only used in the context of wrapCallback, hypc will free these pointers.
- *   See https://github.com/ethereum/hyperion/blob/v0.5.13/libsolc/libsolc.h#L37-L40
- *
  * After 0.6.0:
  *   The duty is on hypc-js to free these pointers. We accomplish that by calling `reset` at the end.
  *
