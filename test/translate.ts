@@ -27,12 +27,12 @@ tape('Version string to Semver translator', function (t) {
     st.end();
   });
   t.test('Broken 0.1.3', function (st) {
-    st.equal(versionToSemver('0.1.3-0/.-/clang/int linked to libethereum-0.9.92-0/.-/clang/int'), '0.1.3');
+    st.equal(versionToSemver('0.1.3-0/.-/clang/int linked to libzond-0.9.92-0/.-/clang/int'), '0.1.3');
     st.end();
   });
   t.test('Old style 0.2.0', function (st) {
     st.equal(
-      versionToSemver('0.2.0-e7098958/.-Emscripten/clang/int linked to libethereum-1.1.1-bbb80ab0/.-Emscripten/clang/int'),
+      versionToSemver('0.2.0-e7098958/.-Emscripten/clang/int linked to libzond-1.1.1-bbb80ab0/.-Emscripten/clang/int'),
       '0.2.0+commit.e7098958'
     );
     st.end();

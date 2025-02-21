@@ -4,8 +4,8 @@ import linker from './linker';
 /// Old style: 0.3.6-3fc68da5/Release-Emscripten/clang
 ///            0.3.5-371690f0/Release-Emscripten/clang/Interpreter
 ///            0.3.5-0/Release-Emscripten/clang/Interpreter
-///            0.2.0-e7098958/.-Emscripten/clang/int linked to libethereum-1.1.1-bbb80ab0/.-Emscripten/clang/int
-///            0.1.3-0/.-/clang/int linked to libethereum-0.9.92-0/.-/clang/int
+///            0.2.0-e7098958/.-Emscripten/clang/int linked to libzond-1.1.1-bbb80ab0/.-Emscripten/clang/int
+///            0.1.3-0/.-/clang/int linked to libzond-0.9.92-0/.-/clang/int
 ///            0.1.2-5c3bfd4b*/.-/clang/int
 ///            0.1.1-6ff4cd6b/RelWithDebInfo-Emscripten/clang/int
 /// New style: 0.4.5+commit.b318366e.Emscripten.clang
