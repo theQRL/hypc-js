@@ -4,7 +4,7 @@
   "description": "Hyperion compiler",
   "main": "index.js",
   "bin": {
-    "hypjs": "hypc.js"
+    "hypcjs": "hypc.js"
   },
   "scripts": {
     "build": "tsc",
