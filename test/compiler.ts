@@ -810,7 +810,8 @@ runTests(hypc, 'latest');
 if (!noRemoteVersions) {
   // New compiler interface features 0.0.1
   const versions = [
-    'v0.0.1+commit.360d2d0'
+    'v0.0.1+commit.360d2d0',
+    'v0.1.0+commit.4b49301'
   ];
   for (let version in versions) {
     version = versions[version];
