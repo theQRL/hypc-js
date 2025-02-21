@@ -1,5 +1,5 @@
 {
-  "name": "hypc",
+  "name": "@theqrl/hypc",
   "version": "0.0.2",
   "description": "Hyperion compiler",
   "main": "index.js",
