@@ -1,6 +1,6 @@
 {
   "name": "@theqrl/hypc",
-  "version": "0.2.0-64b.0",
+  "version": "0.2.0",
   "description": "Hyperion compiler",
   "main": "index.js",
   "bin": {
