@@ -37,6 +37,21 @@ jobs:
     outputs:
       version: ${{ steps.version.outputs.version }}
     steps:
+      # Publish only reviewed code: the tagged commit must be main or one of its ancestors.
+      - name: Tagged commit is on main
+        env:
+          GH_TOKEN: ${{ github.token }}
+          GH_REPO: ${{ github.repository }}
+          TAG: ${{ github.ref_name }}
+        run: |
+          set -euo pipefail
+          # compare/main...SHA reports "identical" or "behind" only when SHA is reachable from main.
+          status=$(gh api "repos/${GH_REPO}/compare/main...${GITHUB_SHA}?per_page=1" --jq .status)
+          if [ "${status}" != identical ] && [ "${status}" != behind ]; then
+            echo "::error::tag ${TAG} points at ${GITHUB_SHA}, which is not on main (compare status: ${status}). Tag a merged commit of main; never move or delete the tag."
+            exit 1
+          fi
+          echo "tag ${TAG} points at ${GITHUB_SHA}, which is on main"
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
           persist-credentials: false
