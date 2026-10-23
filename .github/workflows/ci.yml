@@ -1,0 +1,104 @@
+name: CI
+
+on:
+  workflow_call:
+
+permissions:
+  contents: read
+
+jobs:
+  lint:
+    name: Lint
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - name: Use Node.js 22.x
+        uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7.0.0
+        with:
+          node-version: '22.x'
+          package-manager-cache: false # release inputs are never restored from a cache
+      - run: npm ci --ignore-scripts
+      - run: npm run lint
+
+  test:
+    name: Test (Node ${{ matrix.node-version }})
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        node-version: [22.x, 24.x]
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - name: Use Node.js ${{ matrix.node-version }}
+        uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7.0.0
+        with:
+          node-version: ${{ matrix.node-version }}
+          package-manager-cache: false # release inputs are never restored from a cache
+      - run: npm ci --ignore-scripts
+      - run: npm test
+
+  audit:
+    name: Audit runtime dependencies
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - name: Use Node.js 22.x
+        uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7.0.0
+        with:
+          node-version: '22.x'
+          package-manager-cache: false # release inputs are never restored from a cache
+      - run: npm ci --ignore-scripts
+      # Gate on the shipped (runtime) tree only; dev-only advisories are tracked via Dependabot.
+      - run: npm audit --omit=dev --audit-level=low
+
+  binary:
+    name: hypjson.js is the hyperion release asset
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - name: Check out the binary index
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          repository: theQRL/hypc-bin
+          ref: main
+          path: hypc-bin
+          persist-credentials: false
+      - name: Use Node.js 22.x
+        uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7.0.0
+        with:
+          node-version: '22.x'
+          package-manager-cache: false # release inputs are never restored from a cache
+      - run: npm ci --ignore-scripts
+      # Reported version, hypc-bin list.json hashes, theQRL/hyperion release SHA256SUMS and,
+      # for versions after 0.2.0, the release's build provenance attestation.
+      - name: Check the compiler binary
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: node scripts/check-binary.mjs --list hypc-bin/bin/list.json
+
+  package:
+    name: Pack and smoke-test the tarball
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - name: Use Node.js 22.x
+        uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7.0.0
+        with:
+          node-version: '22.x'
+          package-manager-cache: false # release inputs are never restored from a cache
+      - run: npm ci --ignore-scripts
+      # The packed hypjson.js must be the committed bytes and the file list must match
+      # scripts/tarball-manifest.txt.
+      - name: Pack check
+        run: node scripts/pack-check.mjs --out out
+      - name: Install the tarball and use the library and CLI
+        run: node scripts/packaging-smoke.mjs out/theqrl-hypc-*.tgz
