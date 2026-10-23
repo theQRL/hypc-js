@@ -41,7 +41,7 @@
     "command-exists": "^1.2.8",
     "commander": "^8.1.0",
     "follow-redirects": "^1.16.1",
-    "js-sha3": "0.8.0",
+    "js-sha3": "0.13.0",
     "memorystream": "^0.3.1",
     "semver": "^5.5.0",
     "tmp": "0.2.7"
