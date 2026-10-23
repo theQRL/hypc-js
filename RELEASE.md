@@ -40,7 +40,8 @@ The compiler must be released first; every later step verifies against it.
    ```
 
 5. **Approve.** The `Release` workflow runs CI again, then waits for approval of the `npm-publish`
-   environment. Once approved it re-checks the binary, builds and packs once, smoke-tests that
+   environment. Once approved it checks that the tagged commit is on `main` and stops the release if
+   it is not. It then re-checks the binary, builds and packs once, smoke-tests that
    tarball, publishes those exact bytes with provenance, attests them, and creates the GitHub
    release with the tarball and `SHA256SUMS`.
 6. **Registry check.** The `registry-verify` job downloads the version from npm and confirms it
