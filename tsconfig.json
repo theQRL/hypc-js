@@ -6,6 +6,7 @@
     "resolveJsonModule": true,
     "esModuleInterop": true,
     "outDir": "./dist",
+    "rootDir": ".",
     "forceConsistentCasingInFileNames": true,
     "allowJs": true,
     "strict": false,
